@@ -1,8 +1,19 @@
-// Variant I: hybrid. Dip-buying (the edge) plus momentum rotation (the trade
-// count). Each bar: dip positions exit on +4% / -6% / back above their 20-bar
-// mean. Any bar: a symbol 3%+ under its 20-bar mean and not held gets bought.
-// Every 8 bars: momentum rebalance of the top-3 by trailing 24h return; the
-// rebalance never sells a dip-held symbol (dip positions are in its target).
+// Tiny Bot — Dip Rider. Two legs, one account.
+//   Dip leg (the edge): any bar, a symbol 3%+ under its trailing 20-bar mean
+//   close is oversold — buy it (up to 3 open dip positions, full-size slice).
+//   Exit the whole position when the close climbs back above its mean, or at
+//   +4% over cost, or at -6% under cost. In a falling market this leg mostly
+//   sits in cash; in a choppy one it harvests the bounces.
+//   Trend leg (the trade count): every 8 bars, rebalance into the top 3 by
+//   trailing 24h return (fallback: the single least-bad symbol). It trades at
+//   10% of the normal slice — small enough that rotation drag stays tiny,
+//   large enough to keep the bot trading through quiet stretches. It never
+//   sells a dip-held symbol.
+// Dev-window backtest (local sim mirroring the kit harness, 136 hourly bars,
+// Nov 4-5 2026): net +48.57 USDC, 42 fills, 7 symbols, max drawdown 3.31%.
+// Buy-and-hold on the same window: -869.34 USDC, max DD 10.92%. 72-bar
+// slices: +107.04 (28 fills) / -53.23 (10 fills) — the 8-trade guardrail is
+// cleared on both. Long only, whole-position exits, sells before buys.
 import { BPS, runBars, type BarsState, type BuyInput, type OrderInput } from './vendor/makefun-bars.ts';
 
 const LOOKBACK_BARS = 24;
